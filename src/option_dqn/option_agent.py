@@ -91,10 +91,8 @@ class OptionDQNAgent(DQNAgent):
         next_q_max, greedy_actions = next_q_values.max(dim=1)
 
         # Get option lengths for next actions
-        repeat_amounts = torch.tensor(
-            [option_lengths[a.item() % len(option_lengths)] for a in data.actions],
-            device=next_q_max.device,
-        )
+        option_lengths_tensor = torch.tensor(option_lengths, device=next_q_max.device)
+        repeat_amounts = option_lengths_tensor.gather(0, data.actions % len(option_lengths))
 
         # Apply temporal discounting based on option lengths and handle termination vs truncation
         # For termination, we don't bootstrap. For truncation, we do.

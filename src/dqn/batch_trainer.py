@@ -118,7 +118,12 @@ class BatchTrainer:
             60 * 10, additional_timescales=[second * 60 for second in [1, 3, 5, 10]]
         )
 
-        self.agent_keys = ["Replay Buffer Add", "Agent Action", "Replay Buffer Sample", "Update"]
+        self.agent_keys = [
+            "Replay Buffer Add",
+            "Agent Action",
+            "Replay Buffer Sample",
+            "Update",
+        ]
         self.environment_keys = ["Environment Step"]
 
     def execute_agent_decision(self, action) -> tuple[np.ndarray, np.ndarray, bool, bool, dict]:
@@ -147,9 +152,13 @@ class BatchTrainer:
             with timeit("Agent Action"):
                 epsilon = self.agent.get_exploration_rate(self.frame_no)
                 if np.random.random() < epsilon:
-                    action = self.envs.action_space.sample()
+                    action = self.agent.get_exploration_action()
                 else:
-                    with timeit("Agent Decision"), torch.no_grad(), self.fabric.autocast():
+                    with (
+                        timeit("Agent Decision"),
+                        torch.no_grad(),
+                        self.fabric.autocast(),
+                    ):
                         obs = torch.as_tensor(self.obs).to(self.fabric.device)
                         action = self.agent.policy(obs, self.agent.q_network)
                         self.agent.agent_decisions_made_so_far += 1

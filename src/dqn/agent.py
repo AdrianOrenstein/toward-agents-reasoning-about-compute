@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from src.dqn.compressed_rbuffer import CompressedReplayBuffer
 from src.dqn.network import QNetwork
 from src.dqn.utils import ReplayBufferSamples
+import numpy as np
 
 
 @dataclass
@@ -132,6 +133,10 @@ class DQNAgent:
             self.args.end_e,
             self.args.start_e + (self.args.end_e - self.args.start_e) * (frame_no / self.args.exploration_ends),
         )
+
+    def get_exploration_action(self) -> np.ndarray:
+        """Get an exploration action."""
+        return self.action_space.sample()
 
     @staticmethod
     @torch.no_grad()
