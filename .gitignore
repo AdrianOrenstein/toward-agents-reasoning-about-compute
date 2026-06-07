@@ -1,6 +1,1 @@
-.DS_Store
-*.sif
-*.pyc
-*.tar
-wandb/
-**__pycache__**
+__pycache__/
